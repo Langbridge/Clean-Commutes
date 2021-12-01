@@ -4,6 +4,9 @@
 // By R. Zschiegner (rz@madavi.de)
 // April 2016
 //
+// Modified by A. Langbridge
+// Nov 2021
+//
 // Documentation:
 //		- The iNovaFitness SDS011 datasheet
 //

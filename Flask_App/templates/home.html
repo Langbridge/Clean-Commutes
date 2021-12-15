@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Clean Commutes</title>
+    <script src='static/chart.min.js'></script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+
+    
+  </head>
+
+  <body>
+    <script src="https://kit.fontawesome.com/b99e675b6e.js"></script>
+
+    <div class="wrapper">
+
+      <div class="top_navbar">
+        <div class="logo">
+          <a href="#">CLEAN COMMUTES</a>
+        </div>
+        <div class="top_menu">
+          <div class="tagline">
+              <span>Pollution Context-Aware Routing for London Commutes</span>
+          </div>
+          <div class="right_info">
+              <span>Abi Langbridge</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="main_body">
+        
+        <div class="sidebar_menu">
+              <div class="inner__sidebar_menu">
+                
+                <ul>
+                  <li>
+                    <a href="#" class="active">
+                      <span class="icon"><i class="fas fa-home"></i></span>
+                      <span class="list">Home</span>
+                    </a>
+                  </li>
+                  <li>
+                    <a href="#monitor">
+                      <span class="icon"><i class="fas fa-chart-pie"></i></span>
+                      <span class="list">Live AQI</span>
+                    </a>
+                  </li>
+                  <li>
+                    <a href="#route">
+                      <span class="icon"><i class="fas fa-map-marked-alt"></i></span>
+                      <span class="list">Get Me Somewhere!</span>
+                    </a>
+                  </li>
+                </ul>
+
+              </div>
+          </div>
+
+          <div class="container">
+            <div class="item_wrap">
+              <div class="item">
+                <h1>Home</h1>
+                <p>93% of Londoners believe that air quality in the capital is an issue, with more than 40% reporting that their health has been negatively affected by London's air pollution. Despite this, the risks of pollution inhalation are difficult to understand and quantify.</p><br>
+                
+                <p>Initiatives such as the <a href="https://waqi.info/">World Air Quality Index</a> and <a href="https://uk-air.defra.gov.uk/">DEFRA's UK AIR Project</a> provide local exposure information, however this information is difficult to relate to an individual's risk without an understanding of respiration rates, particle deposition in the lungs and particle dynamics in different transport microenvironments.</p><br>
+                
+                <p>The Clean Commutes project investigates the possibility of modelling individual exposure during commutes and other journeys, using mathematical data from various studies of London's transport microenvironments, respiration rates calculated by the US Environmental Protection Agency and particle size estimation methods proposed by Rivas et. al in their paper: "Exposure to air pollutants during commuting in London: are there inequalities among different socio-economic groups?".</p>
+                
+                <img src="static/housing.png" alt="An image showing the low-cost sensor setup, housed in a waterproof box. The inlet for air is visible, alongside the temperature / humidity sensor." style="width:350px"><br>
+                
+                <p>This webapp is designed to allow people to monitor the air pollution close to my flat from a both low time-resolution monitoring station and a much higher time-resolution low-cost sensing setup, above, and forecast the exposure they're likely to recieve when taking a journey. Further, the tool allows people to make informed choices about reducing their PM2.5 exposure through choosing alternative, lower-exposure routes where possible.</p>
+              </div>
+            </div>
+
+            
+
+            <div class="item_wrap">
+              <a class="anchor" id="monitor"></a>
+              <div class="item">
+                <h1>Live AQI</h1>
+                <p>The graph below shows the AQI over the past 24-hours from two sources. The first dataset is collected from the Hounslow Chiswick air monitoring station, using the World Air Quality Index API to collect data every hour. As you can see, the data is very low resolution, with updates to the AQI only occuring every two to four hours.</p><br>
+
+                <p>The second and third datasets are derived from the half-hourly sensing data from the low-cost sensor setup. The first is hourly-averaged data, and the second a four-hour moving average.</p>
+              
+                <div class="chartwrapper">
+                  <canvas id="AQI_chart" height="200px"></canvas>
+                </div>
+
+                <p>As is evident from the graph, their is limited correlation between the two data streams. This is perhaps due to their geographical separation: the two sensors are located approximately 1km apart. Complex particle dynamics mean that for sensors to be considered 'co-located' their inlets must be within 30cm - clearly this separation is significantly more than this. However, it's interesting to see the broader trends echod between the two sensors.<br></p>
+
+              </div>
+            </div>
+              
+
+            <div class="item_wrap">
+              <a class="anchor" id="route"></a>
+              <div class="item">
+                <h1>Get Me Somewhere!</h1>
+
+                <p>Want to know how much particulate pollution you're likely exposed to on a given journey? Fill in the form below and the tool will calculate the three best journeys for your optimality criteria. (Hint: RDD is a metric related to the total inhaled pollution, so we need a little bit of information about you to model your inhalation rates! If you don't want to provide this information, we will use generic values.)</p>
+
+                <dl class=form id="journeyform">
+                  <dt><label for="start">Origin Postcode:</label>
+                  <input type="text" id="start" name="start" value="W60XP"></dt>
+                  <dd><label for="age">Age:      </label>
+                  <input type="number" id="age" name="age" value=30></dd><br>
+
+                  <dt><label for="end">Destination Postcode:</label>
+                  <input type="text" id="end" name="end" value="SW72BX"></dt>
+                  <dd><label for="mass">Weight (kg):     </label>
+                  <input type="number" id="mass" name="mass" value=65></dd><br>
+
+                  <dt><label for="obj">Main Objective:</label>
+                    <label for="obj1">Time_</label><input type="radio" id="obj1" name="obj" value="0" checked>
+                    <label for="obj2">Cost_</label><input type="radio" id="obj2" name="obj" value="2">
+                    <label for="obj3">RDD_</label><input type="radio" id="obj3" name="obj" value="1">
+                  </dt>
+                  <dd><label for="sex">Sex (M/F):</label>
+                  <input type="text" id="sex" name="sexx" value="M"></dd><br>
+                </dl>
+                
+                <button id="fetchnew" type="button" >Get Best Routes!</button>
+
+                <div class="chartwrapper">
+                  <canvas id="journey_chart"></canvas>
+                </div>
+
+                <p id="dynamictext"><b>No routes have been calculated yet. Click the button above to update!</b></p><br>
+                <p id="dynamicfollow"><b></b></p><br>
+              </div>
+              </div>
+            </div>
+          </div>
+      </div>
+    </div>
+
+  <footer></footer>
+
+  <script>
+    var AQI_data = {{ line_data | tojson }};
+    var journey_data = {{ bar_data | tojson }};
+    
+    var options = {
+    global: {
+        responsive: true,
+        maintainAspectRatio: false
+    },
+    scales: { 
+        yAxes: [{
+            ticks: {
+                    beginAtZero: true
+            },
+            scaleLabel: {
+                    display: true,
+                    labelString: 'Concentration (ug/m3)',
+                    fontSize: 14
+            }
+        }]
+    }
+    };
+    
+    var ctx_journey = document.getElementById("journey_chart").getContext('2d');
+    var journey_chart = new Chart(ctx_journey, {
+        type: 'bar',
+        data: journey_data,
+        options: options
+    });
+
+    var ctx_aqi = document.getElementById("AQI_chart").getContext('2d');
+    var aqi_chart = new Chart(ctx_aqi, {
+        type: 'line',
+        data: AQI_data,
+        options: options
+    });
+    
+    $(function() {
+        $('a#test').on('click', function(e) {
+        e.preventDefault()
+        $.getJSON('/test',
+            function(data) {
+            });
+        return false;
+        });
+    });
+
+    $("#fetchnew").click(function() {
+        var input = {
+          start: document.getElementById("start").value,
+          end: document.getElementById("end").value,
+          age: document.getElementById("age").value,
+          sex: document.getElementById("sex").value,
+          mass: document.getElementById("mass").value,
+          obj: document.querySelector('input[name="obj"]:checked').value
+        };
+
+        $.getJSON('/test', input, function(newDataset) {
+            var data = journey_chart.data;
+            data.datasets.forEach(dataset => {
+              data.datasets.pop()});
+            data.datasets.pop();
+
+            newDataset.datasets.forEach(dataset => {
+              data.datasets.push(dataset)});
+            journey_chart.update()
+
+            var dynamicTxt = "<b>The optimal route is a £"+journey_chart.data.datasets[0].data[1]+" "+journey_chart.data.datasets[0].label+" journey that takes "+journey_chart.data.datasets[0].data[0]+" minutes to follow. This corresponds to an expected RDD of "+journey_chart.data.datasets[0].data[2]+"ug.</b>"
+            document.getElementById('dynamictext').innerHTML = dynamicTxt;
+            document.getElementById('dynamicfollow').innerHTML = "<b>To follow this route:</b><br>"+newDataset.follow;
+        });
+        return false;
+    });
+  </script>
+
+  </body>
+
+</html>

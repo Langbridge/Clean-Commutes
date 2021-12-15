@@ -1,0 +1,80 @@
+<head>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src='static/chart.min.js'></script>
+</head>
+
+
+<button id="0" type="button" >Dataset 1</button>
+<button id="1" type="button" >Dataset 2</button>
+<button id="test" type="button" >Print</button>
+<canvas id="myChart"></canvas>
+
+<script>
+var measured_data = {{ data | tojson }};
+
+var options = {
+global: {
+    responsive: true,
+    maintainAspectRatio: false
+},
+scales: { 
+    yAxes: [{
+        ticks: {
+                beginAtZero: true
+        },
+        scaleLabel: {
+                display: true,
+                labelString: 'Concentration (ug/m3)',
+                fontSize: 14
+        }
+    }]
+}
+};
+
+var ctx = document.getElementById("myChart").getContext('2d');
+
+var myChart = new Chart(ctx, {
+    type: 'bar',
+    data: measured_data,
+    options: options
+});
+
+$(function() {
+    $('a#test').on('click', function(e) {
+    e.preventDefault()
+    $.getJSON('/test',
+        function(data) {
+            
+
+        });
+    return false;
+    });
+});
+
+$("#test").click(function() {
+    $.getJSON('/test', function(newDataset) {
+        var data = myChart.data;
+        data.datasets.push(newDataset);
+        myChart.update()
+    });
+    return false;
+});
+
+$("#0").click(function() {
+    var data = myChart.data;
+    data.datasets.pop();
+    myChart.update();
+});
+
+$("#1").click(function() {
+    const newDataset = {
+        label: 'PM1',
+        borderColor: 'green',
+        data: [0.2, 1, 0.8],
+        fill: false,
+    };
+    var data = myChart.data;
+    data.datasets.push(newDataset);
+    myChart.update();
+});
+</script>
